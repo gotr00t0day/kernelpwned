@@ -1,9 +1,5 @@
 # KernelPWNED - Kernel Exploit Suggester
 
-**Author:** c0d3Ninja  
-**Version:** 1.0  
-**Date:** October 2025
-
 A lightweight, fast kernel exploit suggester written in C++ that automatically detects if your Linux kernel is vulnerable to known privilege escalation exploits.
 
 ## Overview
