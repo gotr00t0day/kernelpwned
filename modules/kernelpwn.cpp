@@ -170,7 +170,7 @@ std::vector<kernelVuln> kernelVulns = {
     {"CVE-2022-0847", "Dirty Pipe", DirtyPipe(), "https://github.com/Al1ex/CVE-2022-0847"},
     {"CVE-2023-32629", "GameOver(lay)", GameOverLay(), "https://github.com/g1vi/CVE-2023-2640-CVE-2023-32629"},
     {"CVE-2024-1086", "CVE-2024-1086", CVE_2024_1086(), "https://github.com/Notselwyn/CVE-2024-1086"},
-    {"CVE-2026-31431", "Copy Fail", CopyFailVersions(), "https://xint.io/blog/copy-fail-linux-distributions"}
+    {"CVE-2026-31431", "Copy Fail", CopyFailVersions(), "https://github.com/theori-io/copy-fail-CVE-2026-31431"}
 };
 
 void checkVuln() {
