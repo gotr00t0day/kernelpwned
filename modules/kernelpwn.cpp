@@ -123,27 +123,20 @@ std::vector<std::string> CVE_2024_1086() {
 }
 
 std::vector<std::string> CopyFailVersions() {
-    // CVE-2026-31431 — affected from ~4.14 up to 6.18.21 / 6.19.11 / 7.0-rc1
     std::vector<std::string> versions;
-    // 4.14 – 4.19
     for (int minor = 14; minor <= 19; minor++)
         for (int patch = 0; patch <= 255; patch++)
             versions.emplace_back("4." + std::to_string(minor) + "." + std::to_string(patch));
-    // 5.0 – 5.19
     for (int minor = 0; minor <= 19; minor++)
         for (int patch = 0; patch <= 255; patch++)
             versions.emplace_back("5." + std::to_string(minor) + "." + std::to_string(patch));
-    // 6.0 – 6.17
     for (int minor = 0; minor <= 17; minor++)
         for (int patch = 0; patch <= 255; patch++)
             versions.emplace_back("6." + std::to_string(minor) + "." + std::to_string(patch));
-    // 6.18.0 – 6.18.21
     for (int patch = 0; patch <= 21; patch++)
         versions.emplace_back("6.18." + std::to_string(patch));
-    // 6.19.0 – 6.19.11
     for (int patch = 0; patch <= 11; patch++)
         versions.emplace_back("6.19." + std::to_string(patch));
-    // 7.0-rc1
     versions.emplace_back("7.0-rc1");
     return versions;
 }
