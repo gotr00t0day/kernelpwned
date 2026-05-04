@@ -2,8 +2,7 @@
     kernelpwn - Kernel Exploit Suggester
     This tool is used to check if the kernel is vulnerable to a known exploit.
     Author: c0d3Ninja
-    Version: 1.0
-    Date: October 2025
+    Version: 1.1
 */
 
 
@@ -123,17 +122,68 @@ std::vector<std::string> CVE_2024_1086() {
     return versions;
 }
 
+std::vector<std::string> CopyFailVersions() {
+    // CVE-2026-31431 — affected from ~4.14 up to 6.18.21 / 6.19.11 / 7.0-rc1
+    std::vector<std::string> versions;
+    // 4.14 – 4.19
+    for (int minor = 14; minor <= 19; minor++)
+        for (int patch = 0; patch <= 255; patch++)
+            versions.emplace_back("4." + std::to_string(minor) + "." + std::to_string(patch));
+    // 5.0 – 5.19
+    for (int minor = 0; minor <= 19; minor++)
+        for (int patch = 0; patch <= 255; patch++)
+            versions.emplace_back("5." + std::to_string(minor) + "." + std::to_string(patch));
+    // 6.0 – 6.17
+    for (int minor = 0; minor <= 17; minor++)
+        for (int patch = 0; patch <= 255; patch++)
+            versions.emplace_back("6." + std::to_string(minor) + "." + std::to_string(patch));
+    // 6.18.0 – 6.18.21
+    for (int patch = 0; patch <= 21; patch++)
+        versions.emplace_back("6.18." + std::to_string(patch));
+    // 6.19.0 – 6.19.11
+    for (int patch = 0; patch <= 11; patch++)
+        versions.emplace_back("6.19." + std::to_string(patch));
+    // 7.0-rc1
+    versions.emplace_back("7.0-rc1");
+    return versions;
+}
+
+bool checkAlgif_Aead() {
+    std::string cmd = "lsmod | grep algif_aead";
+    std::string results = execCommand(cmd.c_str());
+    bool output;
+    if (!results.empty()) {
+        output = true;
+    } else {
+        output = false;
+    }
+    return output;
+}
+
+bool checkAuthencesn() {
+    std::string cmd = "grep -r authencesn /proc/crypto 2>/dev/null";
+    std::string results = execCommand(cmd.c_str());
+    bool output;
+    if (!results.empty()) {
+        output = true;
+    } else {
+        output = false;
+    }
+    return output;
+}
+
 std::vector<kernelVuln> kernelVulns = {
     {"CVE-2016-5195", "Dirty COW", DirtyCow(), "https://github.com/firefart/dirtycow"},
     {"CVE-2022-0847", "Dirty Pipe", DirtyPipe(), "https://github.com/Al1ex/CVE-2022-0847"},
     {"CVE-2023-32629", "GameOver(lay)", GameOverLay(), "https://github.com/g1vi/CVE-2023-2640-CVE-2023-32629"},
-    {"CVE-2024-1086", "CVE-2024-1086", CVE_2024_1086(), "https://github.com/Notselwyn/CVE-2024-1086"}
+    {"CVE-2024-1086", "CVE-2024-1086", CVE_2024_1086(), "https://github.com/Notselwyn/CVE-2024-1086"},
+    {"CVE-2026-31431", "Copy Fail", CopyFailVersions(), "https://xint.io/blog/copy-fail-linux-distributions"}
 };
 
 void checkVuln() {
     std::string cmd = "uname -r";
     std::string uname = execCommand(cmd.c_str());
-    size_t pos = uname.find('-');
+    size_t pos = uname.find('+');
     if (pos != std::string::npos) {
         uname = uname.substr(0, pos);
     }
@@ -143,21 +193,32 @@ void checkVuln() {
     std::cout << "Kernel version: " << YELLOW << uname << RESET << "\n\n\n";
     for (const auto& vuln : kernelVulns) {
         if (std::find(vuln.affected_versions.begin(), vuln.affected_versions.end(), uname) != vuln.affected_versions.end()) {
-            std::cout << "Name: " << vuln.name << "\n\n";
-            std::cout << "CVE: " << vuln.cve << "\n\n";
-            std::cout << "PoC: " << vuln.exploit_url << "\n\n";
-            std::string linux = getDistroName();
-            if (linux == "Ubuntu") {
-                std::cout << "Name: " << vuln.name << "\n\n";
-                std::cout << "CVE: " << vuln.cve << "\n\n";
-                std::cout << "PoC: " << vuln.exploit_url << "\n\n";
-            } else {
-                std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " NOT VULNERABLE" RESET << "\n\n";
+            if (vuln.cve == "CVE-2026-31431") {
+                if (checkAlgif_Aead() && checkAuthencesn()) {
+                    std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+                    std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+                    std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+                    std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
+                }
+                continue;
             }
+            if (vuln.cve == "CVE-2023-32629") {
+                if (getDistroName() == "Ubuntu") {
+                    std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+                    std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+                    std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+                    std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
+                } else {
+                    std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
+                }
+                continue;
+            }
+            std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+            std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+            std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+            std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
         } else {
-            std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " NOT VULNERABLE" << RESET << "\n\n";
+            std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
         }
     }
 }
-
-
