@@ -1,8 +1,8 @@
 /*
          _nnnn_                      
-        dGGGGMMb     ,"""""""""""""".
-       @p~qp~~qMb    | Linux Rules! |
-       M|@||@) M|   _;..............'
+        dGGGGMMb     ,"""""""""""""""""""".
+       @p~qp~~qMb    | Linux Kenel Pwned! |
+       M|@||@) M|   _;....................'
        @,----.JM| -'
       JS^\__/  qKL
      dZP        qKRb
@@ -15,6 +15,7 @@
 _)      \.___.,|     .'
 \____   )MMMMMM|   .'
      `-'       `--' 
+
 
     kernelpwn - Kernel Exploit Suggester
     This tool is used to check if the kernel is vulnerable to a known exploit.
