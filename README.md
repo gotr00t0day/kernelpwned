@@ -1,6 +1,7 @@
 # KernelPWNED - Kernel Exploit Suggester
 
-/*
+```text
+
          _nnnn_                      
         dGGGGMMb     ,"""""""""""""".
        @p~qp~~qMb    | Linux Rules! |
@@ -16,9 +17,10 @@
  |    `.       | `' \Zq
 _)      \.___.,|     .'
 \____   )MMMMMM|   .'
-     `-'       `--' 
+     `-'       `--'
 
-*/
+```
+
 
 A lightweight, fast kernel exploit suggester written in C++ that automatically detects if your Linux kernel is vulnerable to known privilege escalation exploits.
 
