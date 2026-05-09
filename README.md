@@ -1,6 +1,6 @@
 # KernelPWNED - Kernel Exploit Suggester
 
-![Alt text](https://www.redhotcyber.com/wp-content/uploads/2026/03/image-136-1024x683.jpg)
+![Alt text](https://github.com/gotr00t0day/kernelpwned/blob/main/linux.png)
 
 A lightweight, fast kernel exploit suggester written in C++ that automatically detects if your Linux kernel is vulnerable to known privilege escalation exploits.
 
