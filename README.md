@@ -41,11 +41,17 @@ KernelPWNED scans your current Linux kernel version and cross-references it agai
 - **Impact:** Privilege escalation to root
 - **PoC:** https://github.com/Notselwyn/CVE-2024-1086
 
-### 5. CVE-2026-31431
+### 5. Copy Fail
 - **Affected Kernels:** 4.14+ through 6.18.21, 6.19.11, and 7.0-rc1 
 - **Type:** Logic flaw in the kernel crypto path: AF_ALG AEAD (algif_aead) + authencesn
 - **Impact:** Privilege escalation to root
 - **PoC:** https://xint.io/blog/copy-fail-linux-distributions
+
+### 6. Dirty Frag
+- **Affected Kernels:** 4.14+ through 6.18.21, 6.19.11, and 7.0-rc1 
+- **Type:** Vulnerable kernel networking and memory-fragment handling components
+- **Impact:** Privilege escalation to root
+- **PoC:** https://github.com/V4bel/dirtyfrag
 
 ## Requirements
 
