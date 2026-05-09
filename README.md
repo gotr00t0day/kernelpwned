@@ -1,6 +1,6 @@
 # KernelPWNED - Kernel Exploit Suggester
 
-```text
+```
 
          _nnnn_                      
         dGGGGMMb     ,"""""""""""""".
