@@ -1,4 +1,4 @@
-# KernelPWNED - Kernel Exploit Suggester
+# KernelPWN - Kernel Exploit Suggester
 
 ![Alt text](https://github.com/gotr00t0day/kernelpwned/blob/main/linux.png)
 
