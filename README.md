@@ -6,7 +6,7 @@ A lightweight, fast kernel exploit suggester written in C++ that automatically d
 
 ## Overview
 
-KernelPWNED scans your current Linux kernel version and cross-references it against a database of known kernel vulnerabilities. It's designed for penetration testers, security researchers, and system administrators who need to quickly assess kernel vulnerability status.
+KernelPWN scans your current Linux kernel version and cross-references it against a database of known kernel vulnerabilities. It's designed for penetration testers, security researchers, and system administrators who need to quickly assess kernel vulnerability status.
 
 ## Features
 
