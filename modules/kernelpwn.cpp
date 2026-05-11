@@ -1,7 +1,7 @@
 /*
          _nnnn_                      
         dGGGGMMb     ,"""""""""""""""""""".
-       @p~qp~~qMb    | Linux Kenel Pwned! |
+       @p~qp~~qMb    | Linux Kernel Pwned! |
        M|@||@) M|   _;....................'
        @,----.JM| -'
       JS^\__/  qKL
