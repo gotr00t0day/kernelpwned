@@ -1,8 +1,8 @@
-# KernelPWN - Kernel Exploit Suggester
+# KernelPWN - Linux Kernel Vulnerability Scanner
 
 ![Alt text](https://github.com/gotr00t0day/kernelpwned/blob/main/linux.png)
 
-A lightweight, fast kernel exploit suggester written in C++ that automatically detects if your Linux kernel is vulnerable to known privilege escalation exploits.
+A lightweight, fast kernel vulnerability scanner written in C++ that automatically detects if your Linux kernel is vulnerable to known privilege escalation exploits.
 
 ## Overview
 
