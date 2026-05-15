@@ -13,7 +13,7 @@
 #define UNDERLINE "\033[4m"
 
 void banner() {
-    std::cout << RED << BOLD << R"(
+    std::cout << WHITE << BOLD << R"(
          _nnnn_                      
         dGGGGMMb     ,"""""""""""""""""""".
        @p~qp~~qMb    | Linux Kenel Pwned! |
