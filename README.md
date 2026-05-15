@@ -48,13 +48,13 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 - **Type:** Logic flaw in the kernel crypto path: AF_ALG AEAD (algif_aead) + authencesn
 - **Impact:** Privilege escalation to root
 - **PoC:** https://xint.io/blog/copy-fail-linux-distributions
-
+  
 ### 6. Dirty Frag
 - **Affected Kernels:** 4.14+ through 6.18.21, 6.19.11, and 7.0-rc1 
 - **Type:** Vulnerable kernel networking and memory-fragment handling components
 - **Impact:** Privilege escalation to root
 - **PoC:** https://github.com/V4bel/dirtyfrag
-
+  
 - ### 7. Fraqnesia
 - **Affected Kernels:** 4.14+ through 6.18.21, 6.19.11, and 7.0-rc1 
 - **Type:** Allows an unprivileged local attacker to gain root access by corrupting the kernel page cache of read-only files
