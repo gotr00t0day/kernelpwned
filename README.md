@@ -55,7 +55,7 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 - **Impact:** Privilege escalation to root
 - **PoC:** https://github.com/V4bel/dirtyfrag
 
-- ### 6. Fraqnesia
+- ### 7. Fraqnesia
 - **Affected Kernels:** 4.14+ through 6.18.21, 6.19.11, and 7.0-rc1 
 - **Type:** Allows an unprivileged local attacker to gain root access by corrupting the kernel page cache of read-only files
 - **Impact:** Privilege escalation to root
