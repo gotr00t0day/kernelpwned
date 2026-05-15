@@ -1,4 +1,5 @@
 #include "modules/kernelpwn.h"
+#include <iostream>
 
 void banner() {
     std::cout << RED << BOLD << R"(
