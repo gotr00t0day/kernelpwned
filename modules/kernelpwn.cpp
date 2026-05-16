@@ -20,7 +20,7 @@ _)      \.___.,|     .'
     kernelpwn - Linux Kernel Vulnerability Scanner
     This tool is used to check if the kernel is vulnerable to a known exploit.
     Author: c0d3Ninja
-    Version: 1.3
+    Version: 1.4
 */
 
 
@@ -174,6 +174,13 @@ std::vector<std::string> Fragnesia() {
     return {};
 }
 
+std::vector<std::string> Fragnesia2() {
+    std::string results = DirtyFragModuleScan();
+    if (!results.empty())
+        return {results};
+    return {};
+}
+
 std::vector<std::string> GameOverLay() {
     std::vector<std::string> versions = {"6.2.0", "5.19.0", "5.4.0"};
     return versions;
@@ -263,7 +270,8 @@ std::vector<kernelVuln> kernelVulns = {
     {"CVE-2024-1086", "CVE-2024-1086", CVE_2024_1086(), "https://github.com/Notselwyn/CVE-2024-1086"},
     {"CVE-2026-46300", "Fragnesia", Fragnesia(), "https://github.com/v12-security/pocs/tree/main/fragnesia"},
     {"CVE-2026-31431", "Copy Fail", CopyFailVersions(), "https://github.com/theori-io/copy-fail-CVE-2026-31431"},
-    {"CVE-2026-43284", "Dirty Frag", DirtyFragVersions(), "https://github.com/V4bel/dirtyfrag"}
+    {"CVE-2026-43284", "Dirty Frag", DirtyFragVersions(), "https://github.com/V4bel/dirtyfrag"},
+    {"CVE-2026-46300-2", "Fragnesia2", Fragnesia2(), "https://github.com/v12-security/pocs/tree/main/fragnesia-5db89c99566fcg"}
 };
 
 void checkVuln() {
@@ -305,6 +313,18 @@ void checkVuln() {
             }
             continue;
         } 
+        if (vuln.cve == "CVE-2026-46300-2") {
+            std::vector<std::string> fragnesia2Results = Fragnesia2();
+            if (!fragnesia2Results.empty()) {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+                std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+                std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+                std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
+            } else {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
+            }
+            continue;
+        }
         if (std::find(vuln.affected_versions.begin(), vuln.affected_versions.end(), uname) != vuln.affected_versions.end()) {
             if (vuln.cve == "CVE-2026-31431") {
                 if (checkAlgif_Aead() && checkAuthencesn()) {
