@@ -61,6 +61,12 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 - **Impact:** Privilege escalation to root
 - **PoC:** https://github.com/v12-security/pocs/tree/main/fragnesia
 
+### 8. Fraqnesia 2
+- **Affected Kernels:** 4.14+ through 6.18.21, 6.19.11, and 7.0-rc1 
+- **Type:** It bypasses the merged fix (commit f84eca581739) by exploiting a separate path
+- **Impact:** Privilege escalation to root
+- **PoC:** https://github.com/v12-security/pocs/tree/main/fragnesia-5db89c99566fc
+
 ## Requirements
 
 - **Operating System:** Linux (any distribution)
