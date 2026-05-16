@@ -294,11 +294,6 @@ void checkVuln() {
                 std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
                 std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
                 std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
-                if (dirtyResults.rfind("Loadable", 0) == 0) {
-                    std::cout << YELLOW << "Found Loadable Modules!" << RESET << "\n";
-                } else if (dirtyResults.rfind("Loaded", 0) == 0) {
-                    std::cout << YELLOW << "Found Loaded Modules!" << RESET << "\n";
-                }
             }
             continue;
         } 
@@ -355,6 +350,5 @@ void checkVuln() {
         }
     }
 }
-
 
 
