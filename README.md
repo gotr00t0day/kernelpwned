@@ -11,7 +11,7 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 ## Features
 
 - ✅ **Fast Detection** - C++ implementation provides near-instant vulnerability scanning
-- ✅ **Multiple Exploits** - Checks for 4 major kernel vulnerabilities
+- ✅ **Multiple Exploits** - Checks for 8 major kernel vulnerabilities
 - ✅ **PoC Links** - Direct GitHub links to proof-of-concept exploits
 - ✅ **Color-Coded Output** - Easy-to-read terminal output with ANSI colors
 - ✅ **Distribution Detection** - Identifies your Linux distribution
