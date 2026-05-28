@@ -67,6 +67,12 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 - **Impact:** Privilege escalation to root
 - **PoC:** https://github.com/v12-security/pocs/tree/main/fragnesia-5db89c99566fc
 
+### 9. SSH Keysign Pwn
+- **Affected Kernels:** Flaw in mainline since 4.10+ (Nov 2016); practical exploitation needs pidfd_getfd → Linux 5.6+ (Jan 2020). 
+- **Type:**  ptrace exit-race — during process teardown, __ptrace_may_access() skips the dumpable check when mm is already NULL. 
+- **Impact:** Local privilege escalation and credential disclosure.
+- **PoC:** https://github.com/0xdeadbeefnetwork/ssh-keysign-pwn/
+
 ## Requirements
 
 - **Operating System:** Linux (any distribution)
