@@ -20,13 +20,14 @@ _)      \.___.,|     .'
     kernelpwn - Linux Kernel Vulnerability Scanner
     This tool is used to check if the kernel is vulnerable to a known exploit.
     Author: c0d3Ninja
-    Version: 1.4
+    Version: 1.5
 */
 
 
 #include "../modules/executils.h"
 #include <cstddef>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -263,6 +264,53 @@ bool checkAuthencesn() {
     return output;
 }
 
+static bool kernelAtLeast56(const std::string& uname) {
+    unsigned major = 0, minor = 0, patch = 0;
+    if (std::sscanf(uname.c_str(), "%u.%u.%u", &major, &minor, &patch) < 2)
+        return false;
+    return major > 5 || (major == 5 && minor >= 6);
+}
+
+static bool ptraceScopeExploitable() {
+    std::ifstream f("/proc/sys/kernel/yama/ptrace_scope");
+    int scope = -1;
+    if (!(f >> scope))
+        return false;
+    return scope <= 1;
+}
+
+static bool hasPrivilegedSuidTarget() {
+    auto hasSuid = [](const std::string& path) {
+        struct stat st{};
+        if (stat(path.c_str(), &st) != 0)
+            return false;
+        return (st.st_mode & S_ISUID) != 0;
+    };
+    auto hasSuidOrSgid = [](const std::string& path) {
+        struct stat st{};
+        if (stat(path.c_str(), &st) != 0)
+            return false;
+        return (st.st_mode & (S_ISUID | S_ISGID)) != 0;
+    };
+    return hasSuid("/usr/lib/openssh/ssh-keysign") ||
+           hasSuidOrSgid("/usr/bin/chage");
+}
+
+// CVE-2026-46333 — ptrace exit-race / ssh-keysign-pwn (exposure check)
+std::vector<std::string> sshKeySignPwn() {
+    std::string uname = execCommand("uname -r");
+    size_t pos = uname.find('+');
+    if (pos != std::string::npos)
+        uname = uname.substr(0, pos);
+    if (!uname.empty() && uname.back() == '\n')
+        uname.pop_back();
+
+    if (kernelAtLeast56(uname) && ptraceScopeExploitable() && hasPrivilegedSuidTarget())
+        return {uname};
+
+    return {};
+}
+
 std::vector<kernelVuln> kernelVulns = {
     {"CVE-2016-5195", "Dirty COW", DirtyCow(), "https://github.com/firefart/dirtycow"},
     {"CVE-2022-0847", "Dirty Pipe", DirtyPipe(), "https://github.com/Al1ex/CVE-2022-0847"},
@@ -271,7 +319,8 @@ std::vector<kernelVuln> kernelVulns = {
     {"CVE-2026-46300", "Fragnesia", Fragnesia(), "https://github.com/v12-security/pocs/tree/main/fragnesia"},
     {"CVE-2026-31431", "Copy Fail", CopyFailVersions(), "https://github.com/theori-io/copy-fail-CVE-2026-31431"},
     {"CVE-2026-43284", "Dirty Frag", DirtyFragVersions(), "https://github.com/V4bel/dirtyfrag"},
-    {"CVE-2026-46300-2", "Fragnesia2", Fragnesia2(), "https://github.com/v12-security/pocs/tree/main/fragnesia-5db89c99566fcg"}
+    {"CVE-2026-46300-2", "Fragnesia2", Fragnesia2(), "https://github.com/v12-security/pocs/tree/main/fragnesia-5db89c99566fc"},
+    {"CVE-2026-46333", "SSH Key Sign Pwn", sshKeySignPwn(), "https://github.com/0xdeadbeefnetwork/ssh-keysign-pwn/"}
 };
 
 void checkVuln() {
@@ -320,6 +369,17 @@ void checkVuln() {
             }
             continue;
         }
+        if (vuln.cve == "CVE-2026-46333") {
+            if (!vuln.affected_versions.empty()) {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+                std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+                std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+                std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
+            } else {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
+            }
+            continue;
+        }
         if (std::find(vuln.affected_versions.begin(), vuln.affected_versions.end(), uname) != vuln.affected_versions.end()) {
             if (vuln.cve == "CVE-2026-31431") {
                 if (checkAlgif_Aead() && checkAuthencesn()) {
@@ -350,5 +410,3 @@ void checkVuln() {
         }
     }
 }
-
-
