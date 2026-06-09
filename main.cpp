@@ -32,7 +32,7 @@ _)      \.___.,|     .'
      `-'       `--' 
                                                                         
 )" << RESET;
-    std::cout << CYAN << "                  Linux Kernel Vulnerability Scanner v1.5" << RESET << std::endl;
+    std::cout << CYAN << "                  Linux Kernel Vulnerability Scanner v1.6" << RESET << std::endl;
     std::cout << YELLOW << "                          Author: c0d3Ninja" << RESET << std::endl;
     std::cout << BOLD << "========================================================================" << RESET << std::endl;
     std::cout << "\n\n";
