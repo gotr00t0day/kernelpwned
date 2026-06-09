@@ -110,4 +110,5 @@ help:
 $(OBJDIR)/main.o: main.cpp $(MODULEDIR)/kernelpwn.h
 $(OBJDIR)/$(MODULEDIR)/kernelpwn.o: $(MODULEDIR)/kernelpwn.cpp $(MODULEDIR)/kernelpwn.h $(MODULEDIR)/executils.h
 $(OBJDIR)/$(MODULEDIR)/executils.o: $(MODULEDIR)/executils.cpp $(MODULEDIR)/executils.h
+$(OBJDIR)/$(MODULEDIR)/trimmer.o: $(MODULEDIR)/trimmer.cpp $(MODULEDIR)/trimmer.h
 

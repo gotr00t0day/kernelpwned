@@ -20,17 +20,19 @@ _)      \.___.,|     .'
     kernelpwn - Linux Kernel Vulnerability Scanner
     This tool is used to check if the kernel is vulnerable to a known exploit.
     Author: c0d3Ninja
-    Version: 1.5
+    Version: 1.6
 */
 
 
 #include "../modules/executils.h"
+#include "../modules/trimmer.h"
 #include <cstddef>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 #include <fstream>
 #include <list>
 
@@ -271,6 +273,115 @@ static bool kernelAtLeast56(const std::string& uname) {
     return major > 5 || (major == 5 && minor >= 6);
 }
 
+static std::string normalizeUname(std::string uname) {
+    size_t pos = uname.find('+');
+    if (pos != std::string::npos)
+        uname = uname.substr(0, pos);
+    pos = uname.find('-');
+    if (pos != std::string::npos && uname.find('.') != std::string::npos) {
+        unsigned major = 0, minor = 0, patch = 0;
+        if (std::sscanf(uname.c_str(), "%u.%u.%u", &major, &minor, &patch) >= 2)
+            uname = std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+    }
+    if (!uname.empty() && uname.back() == '\n')
+        uname.pop_back();
+    return uname;
+}
+
+static bool kernelInCve202623111Range(const std::string& rawUname) {
+    const std::string uname = normalizeUname(rawUname);
+
+    if (uname.find("6.19-rc") != std::string::npos)
+        return true;
+
+    unsigned major = 0, minor = 0, patch = 0;
+    if (std::sscanf(uname.c_str(), "%u.%u.%u", &major, &minor, &patch) < 2)
+        return false;
+
+    if (major >= 7)
+        return false;
+
+    if (major == 4) {
+        if (minor < 19)
+            return false;
+        if (minor == 19)
+            return patch >= 316;
+        return false;
+    }
+
+    if (major == 5) {
+        if (minor == 4)
+            return patch >= 262;
+        if (minor == 10)
+            return patch >= 188;
+        if (minor == 15)
+            return patch >= 121 && patch < 200;
+        return false;
+    }
+
+    if (major == 6) {
+        if (minor == 0 || minor == 2)
+            return false;
+        if (minor == 1)
+            return patch >= 36 && patch < 163;
+        if (minor == 3)
+            return patch >= 10;
+        if (minor == 4 || minor == 5)
+            return true;
+        if (minor == 6)
+            return patch < 124;
+        if (minor >= 7 && minor <= 11)
+            return true;
+        if (minor == 12)
+            return patch < 70;
+        if (minor >= 13 && minor <= 17)
+            return true;
+        if (minor == 18)
+            return patch < 10;
+        if (minor == 19)
+            return false;
+        return false;
+    }
+
+    return false;
+}
+
+auto OneCharacterVuln() {
+    std::string uname = trim(execCommand("uname -r"));
+    std::vector<std::string> vulnerability;
+    bool checkConfigNfTables;
+    bool nftInstalled;
+    bool unprivUserNamespace;
+    std::string confignftablesCmd = trim(execCommand("grep CONFIG_NF_TABLES /boot/config-$(uname -r)"));
+    if (!confignftablesCmd.empty()) {
+        std::string line;
+        std::istringstream iss(confignftablesCmd);
+        while(std::getline(iss, line)) {
+            auto pos = line.find("=");
+            if (pos == std::string::npos)
+                continue;
+            std::string key = line.substr(0, pos);
+            std::string value = line.substr(pos + 1);
+            if (value == "y" || value == "m") {
+                checkConfigNfTables = true;
+            }
+        }
+    }
+    std::string nftCmd = trim(execCommand("command -v nft"));
+    std::string userNamespacesCmd = trim(execCommand("unshare -U -r true 2>/dev/null && echo userns_ok"));
+    if (!nftCmd.empty()) {
+        nftInstalled = true;
+    }
+    if (userNamespacesCmd == "userns_ok") {
+        unprivUserNamespace = true;
+    }
+    if (kernelInCve202623111Range(uname) && checkConfigNfTables && nftInstalled && unprivUserNamespace) {
+        vulnerability.emplace_back("Vulnerable");
+    }
+    return vulnerability;
+}
+
+
 static bool ptraceScopeExploitable() {
     std::ifstream f("/proc/sys/kernel/yama/ptrace_scope");
     int scope = -1;
@@ -296,7 +407,6 @@ static bool hasPrivilegedSuidTarget() {
            hasSuidOrSgid("/usr/bin/chage");
 }
 
-// CVE-2026-46333 — ptrace exit-race / ssh-keysign-pwn (exposure check)
 std::vector<std::string> sshKeySignPwn() {
     std::string uname = execCommand("uname -r");
     size_t pos = uname.find('+');
@@ -320,7 +430,8 @@ std::vector<kernelVuln> kernelVulns = {
     {"CVE-2026-31431", "Copy Fail", CopyFailVersions(), "https://github.com/theori-io/copy-fail-CVE-2026-31431"},
     {"CVE-2026-43284", "Dirty Frag", DirtyFragVersions(), "https://github.com/V4bel/dirtyfrag"},
     {"CVE-2026-46300-2", "Fragnesia2", Fragnesia2(), "https://github.com/v12-security/pocs/tree/main/fragnesia-5db89c99566fc"},
-    {"CVE-2026-46333", "SSH Key Sign Pwn", sshKeySignPwn(), "https://github.com/0xdeadbeefnetwork/ssh-keysign-pwn/"}
+    {"CVE-2026-46333", "SSH Key Sign Pwn", sshKeySignPwn(), "https://github.com/0xdeadbeefnetwork/ssh-keysign-pwn/"},
+    {"CVE-2026-23111", "One Character Vunlnerability", OneCharacterVuln(), "https://github.com/jordanpotti/CVE-2026-23111"}
 };
 
 void checkVuln() {
@@ -346,6 +457,20 @@ void checkVuln() {
             }
             continue;
         } 
+        if (vuln.cve == "CVE-2026-23111") {
+            for (const auto& result : OneCharacterVuln()) {
+                if (result == "Vulnerable") {
+                    std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+                    std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+                    std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+                    std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
+                }
+                else {
+                    std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
+                }
+            }
+            continue;
+        }
         if (vuln.cve == "CVE-2026-46300") {
             if (!Fragnesia().empty()) {
                 std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
@@ -410,3 +535,5 @@ void checkVuln() {
         }
     }
 }
+
+
