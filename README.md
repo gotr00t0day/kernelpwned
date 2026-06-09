@@ -73,6 +73,12 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 - **Impact:** Local privilege escalation and credential disclosure.
 - **PoC:** https://github.com/0xdeadbeefnetwork/ssh-keysign-pwn/
 
+### 10. One Character Vulnerability
+- **Affected Kernels:** 4.19.316+ through 6.19-rc1
+- **Type:** Allows local unprivileged users to gain root privileges by exploiting a race condition in the kernel's memory management system.
+- **Impact:** Privilege escalation to root
+- **PoC:** https://fuzzinglabs.com/repro-cve-2026-23111/
+
 ## Requirements
 
 - **Operating System:** Linux (any distribution)
