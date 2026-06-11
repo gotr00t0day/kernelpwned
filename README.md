@@ -79,6 +79,12 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 - **Impact:** Privilege escalation to root
 - **PoC:** https://fuzzinglabs.com/repro-cve-2026-23111/
 
+### 11. Dirty Decrypt
+- **Affected Kernels:** 4.14+
+- **Type:** affects the Linux kernel’s rxgk module, and allows an unprivileged local attacker to obtain root privileges by abusing a page-cache write primitive caused by a missing COW guard in the rxgk subsystem.
+- **Impact:** Privilege escalation to root
+- **PoC:** https://thehackernews.com/2026/05/dirtydecrypt-poc-released-for-linux.html
+
 ## Requirements
 
 - **Operating System:** Linux (any distribution)
