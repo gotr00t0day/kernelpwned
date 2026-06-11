@@ -20,7 +20,7 @@ _)      \.___.,|     .'
     kernelpwn - Linux Kernel Vulnerability Scanner
     This tool is used to check if the kernel is vulnerable to a known exploit.
     Author: c0d3Ninja
-    Version: 1.6
+    Version: 1.7
 */
 
 
@@ -381,6 +381,39 @@ auto OneCharacterVuln() {
     return vulnerability;
 }
 
+ auto DirtyDecrypt() {
+    std::string cmd = "grep CONFIG_RXGK /boot/config-$(uname -r) 2>/dev/null";
+    std::string results = trim(execCommand(cmd.c_str()));
+    std::vector<std::string> vulnerable;
+    if (!results.empty()) {
+        std::string line;
+        std::istringstream iss(results);
+        while(getline(iss, line)) {
+            if (line.rfind("#", 0) == 0) {
+                std::string variable = line.substr(13);
+                if (variable.find("is not set")) {
+                    vulnerable.emplace_back("No");
+                }
+            }
+            if (line.rfind("CONFIG_RXGK=", 0) == 0) {
+                std::string config = line.substr(11);
+                if (config.find("y") || config.find("m")) {
+                    auto loadablemodules = [](const std::string& module){
+                        std::string cmd = "modprobe -n -v " + module;
+                        std::string results = execCommand(cmd.c_str());
+                        return results;
+                    };
+                    std::string rxrpc = "rxrpc";
+                    std::string rxrpcModule = loadablemodules(rxrpc);
+                    if (!rxrpcModule.empty() && rxrpcModule.rfind("insmod", 0) == 0) {
+                        vulnerable.emplace_back("Yes");
+                    }
+                }
+            }
+        }
+    }
+    return vulnerable;
+}
 
 static bool ptraceScopeExploitable() {
     std::ifstream f("/proc/sys/kernel/yama/ptrace_scope");
@@ -431,7 +464,8 @@ std::vector<kernelVuln> kernelVulns = {
     {"CVE-2026-43284", "Dirty Frag", DirtyFragVersions(), "https://github.com/V4bel/dirtyfrag"},
     {"CVE-2026-46300-2", "Fragnesia2", Fragnesia2(), "https://github.com/v12-security/pocs/tree/main/fragnesia-5db89c99566fc"},
     {"CVE-2026-46333", "SSH Key Sign Pwn", sshKeySignPwn(), "https://github.com/0xdeadbeefnetwork/ssh-keysign-pwn/"},
-    {"CVE-2026-23111", "One Character Vunlnerability", OneCharacterVuln(), "https://github.com/jordanpotti/CVE-2026-23111"}
+    {"CVE-2026-23111", "One Character Vunlnerability", OneCharacterVuln(), "https://github.com/jordanpotti/CVE-2026-23111"},
+    {"CVE-2026-39364", "Dirty Decrypt", DirtyDecrypt(), "https://github.com/xynet/Dirty-Decrypt"}
 };
 
 void checkVuln() {
@@ -457,17 +491,27 @@ void checkVuln() {
             }
             continue;
         } 
+        if (vuln.cve == "CVE-2026-39364") {
+            const auto result = DirtyDecrypt();
+            if (!result.empty() && result[0] == "Yes") {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+                std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+                std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+                std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
+            } else {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
+            }
+            continue;
+        }
         if (vuln.cve == "CVE-2026-23111") {
-            for (const auto& result : OneCharacterVuln()) {
-                if (result == "Vulnerable") {
-                    std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
-                    std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
-                    std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
-                    std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
-                }
-                else {
-                    std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
-                }
+            const auto result = OneCharacterVuln();
+            if (!result.empty() && result[0] == "Vulnerable") {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << RED << " VULNERABLE!" << RESET << "\n\n";
+                std::cout << "Name: " << RED << vuln.name << RESET << "\n\n";
+                std::cout << "CVE: " << RED << vuln.cve << RESET << "\n\n";
+                std::cout << "PoC: " << RED << vuln.exploit_url << RESET << "\n\n";
+            } else {
+                std::cout << vuln.name << " (" << vuln.cve << ")" << YELLOW << " NOT VULNERABLE" << RESET << "\n\n";
             }
             continue;
         }
