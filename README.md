@@ -11,7 +11,7 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 ## Features
 
 - ✅ **Fast Detection** - C++ implementation provides near-instant vulnerability scanning
-- ✅ **Multiple Exploits** - Checks for 8 major kernel vulnerabilities
+- ✅ **Multiple Exploits** - Checks for 12 major kernel vulnerabilities
 - ✅ **PoC Links** - Direct GitHub links to proof-of-concept exploits
 - ✅ **Color-Coded Output** - Easy-to-read terminal output with ANSI colors
 - ✅ **Distribution Detection** - Identifies your Linux distribution
@@ -84,6 +84,13 @@ KernelPWN scans your current Linux kernel version and cross-references it agains
 - **Type:** affects the Linux kernel’s rxgk module, and allows an unprivileged local attacker to obtain root privileges by abusing a page-cache write primitive caused by a missing COW guard in the rxgk subsystem.
 - **Impact:** Privilege escalation to root
 - **PoC:** https://thehackernews.com/2026/05/dirtydecrypt-poc-released-for-linux.html
+
+### 12. DirtyClone (CVE-2026-43503)
+- **Affected Kernels:** 3.9+ through 6.18.32, 6.19.x, 7.0.0–7.0.9, 7.1-rc1–7.1-rc4 (fixed in 7.1-rc5 and stable backports)
+- **Type:** DirtyFrag bypass — `__pskb_copy_fclone()` drops the `SKBFL_SHARED_FRAG` flag during packet cloning, allowing ESP/IPsec in-place decryption to write into page-cache-backed memory via netfilter TEE/dup rules
+- **Detection:** Kernel version in range, unprivileged user+net namespace (`CAP_NET_ADMIN`), `esp4`/`esp6` loadable, and `nft` installed
+- **Impact:** Privilege escalation to root
+- **PoC:** https://research.jfrog.com/post/dissecting-and-exploiting-linux-lpe-variant-dirtyclone-cve-2026-43503/
 
 ## Requirements
 
